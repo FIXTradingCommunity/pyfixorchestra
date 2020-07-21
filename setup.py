@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/FIXTradingCommunity/pyfixorchestra",
     packages=setuptools.find_packages(),
-	package_data={'':['OrchestraEP257.xml']},
+	package_data={'pyfixorchestra':['OrchestraEP257.xml']},
 	include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
