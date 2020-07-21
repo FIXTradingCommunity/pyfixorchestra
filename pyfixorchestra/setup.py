@@ -11,7 +11,7 @@ setuptools.setup(
     author_email="nzjudge@mtu.edu",
     description="A python package to create a  python dictionary of FIX latest",
     long_description=long_description,
-    url="https://github.com/chillaranand/library",
+    url="https://github.com/FIXTradingCommunity/pyfixorchestra,
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
