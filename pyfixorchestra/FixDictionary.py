@@ -171,8 +171,12 @@ class FixDictionary:
         '''
         name = self.__checkType( )
         import xmltodict
+        import os
+
+
         # get the XML content
-        f = open("OrchestraEP257.xml", "r", encoding="utf8")
+        FILENAME = os.path.join(os.path.dirname(__file__), "OrchestraEP257.xml")
+        f = open(FILENAME, "r", encoding="utf8")
         # convert to dictionary
         FIX = xmltodict.parse(f.read())
         f.close()
@@ -188,19 +192,21 @@ class FixDictionary:
         elif name == 'fixr:components':
             for component in parser:
                 ID = component['@id']
+                name = component['@name']
                 fieldRef = self.getFieldRef(component)
                 groupRef = self.getGroupRef(component)
                 componentRef = self.getComponentRef(component)
                 documentation = self.getDocumentation(component)
-                dictionary[ID] = [fieldRef, groupRef, componentRef, documentation]
+                dictionary[ID] = [name, fieldRef, groupRef, componentRef, documentation]
         elif name == 'fixr:messages':
             for message in parser:
-                ID = message['@id']
-                fieldRef = self.getFieldRef(message)
-                groupRef = self.getGroupRef(message)
-                componentRef = self.getComponentRef(message)
+                ID = message['@msgType']
+                name = message['@name']
+                fieldRef = self.getFieldRef(message['fixr:structure'])
+                groupRef = self.getGroupRef(message['fixr:structure'])
+                componentRef = self.getComponentRef(message['fixr:structure'])
                 documentation = self.getDocumentation(message)
-                dictionary[ID] = [fieldRef, groupRef, componentRef, documentation]
+                dictionary[ID] = [name, fieldRef, groupRef, componentRef, documentation]
         elif name == 'fixr:codeSets':
             for codeSet in parser:
                 ID = codeSet['@id']
@@ -211,16 +217,17 @@ class FixDictionary:
         elif name == 'fixr:groups':
             for group in parser:
                 ID = group['@id']
+                name = group['@name']
                 numInGroup = group['fixr:numInGroup']['@id']
                 fieldRef = self.getFieldRef(group)
                 groupRef = self.getGroupRef(group)
                 componentRef = self.getComponentRef(group)
                 documentation = self.getDocumentation(group)
-                dictionary[ID] = [numInGroup, fieldRef, groupRef, componentRef, documentation]
+                dictionary[ID] = [name, numInGroup, fieldRef, groupRef, componentRef, documentation]
         elif name == 'fixr:datatypes':
             for datatype in parser:
                 name = datatype['@name']
                 documentation = self.getDocumentation(datatype)
-                dictionary[name] = [documentation]
+                dictionary[name] = [name, documentation]
 
         return(dictionary)
