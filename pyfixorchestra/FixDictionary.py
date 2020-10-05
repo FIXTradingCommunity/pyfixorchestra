@@ -187,8 +187,9 @@ class FixDictionary:
             for field in parser:
                 ID = field['@id']
                 name = field['@name']
+                type = field['@type']
                 documentation = self.getDocumentation(field)
-                dictionary[ID] = [name, documentation]
+                dictionary[ID] = [name, type, documentation]
         elif name == 'fixr:components':
             for component in parser:
                 ID = component['@id']
