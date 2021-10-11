@@ -153,7 +153,7 @@ class FixDictionary:
         return(temp)
 
     def generateDictionary(self, name):
-        ''' Returns a dictionary of key = ID or name and appropriate values
+        ''' Returns a dictionary of key = id or name and appropriate values
 
         Returns
         =======
@@ -171,48 +171,53 @@ class FixDictionary:
 
             if name == 'fields':
                 for field in parser:
-                    ID = field['@id']
+                    id = field['@id']
                     name = field['@name']
                     type = field['@type']
+                    scenario = field.get('@scenario', 'base')
                     documentation = self.getDocumentation(field)
-                    dictionary[ID] = [name, type, documentation]
+                    dictionary[id] = [name, type, scenario, documentation]
             elif name == 'components':
                 for component in parser:
-                    ID = component['@id']
+                    id = component['@id']
                     name = component['@name']
+                    scenario = component.get('@scenario', 'base')
                     fieldRef = self.getFieldRef(component)
                     groupRef = self.getGroupRef(component)
                     componentRef = self.getComponentRef(component)
                     documentation = self.getDocumentation(component)
-                    dictionary[ID] = [name, fieldRef,
+                    dictionary[id] = [name, scenario, fieldRef,
                                       groupRef, componentRef, documentation]
             elif name == 'messages':
                 for message in parser:
-                    ID = message['@msgType']
+                    id = message['@msgType']
                     name = message['@name']
+                    scenario = message.get('@scenario', 'base')
                     fieldRef = self.getFieldRef(message['structure'])
                     groupRef = self.getGroupRef(message['structure'])
                     componentRef = self.getComponentRef(message['structure'])
                     documentation = self.getDocumentation(message)
-                    dictionary[ID] = [name, fieldRef,
+                    dictionary[id] = [name, scenario, fieldRef,
                                       groupRef, componentRef, documentation]
             elif name == 'codeSets':
                 for codeSet in parser:
-                    ID = codeSet['@id']
+                    id = codeSet['@id']
                     name = codeSet['@name']
+                    scenario = codeSet.get('@scenario', 'base')
                     fieldRef = self.getCodeSet(codeSet)
                     documentation = self.getDocumentation(codeSet)
-                    dictionary[ID] = [name, fieldRef, documentation]
+                    dictionary[id] = [name, scenario, fieldRef, documentation]
             elif name == 'groups':
                 for group in parser:
-                    ID = group['@id']
+                    id = group['@id']
                     name = group['@name']
+                    scenario = group.get('@scenario', 'base')
                     numInGroup = group['numInGroup']['@id']
                     fieldRef = self.getFieldRef(group)
                     groupRef = self.getGroupRef(group)
                     componentRef = self.getComponentRef(group)
                     documentation = self.getDocumentation(group)
-                    dictionary[ID] = [name, numInGroup, fieldRef,
+                    dictionary[id] = [name, scenario, numInGroup, fieldRef,
                                       groupRef, componentRef, documentation]
             elif name == 'datatypes':
                 for datatype in parser:
