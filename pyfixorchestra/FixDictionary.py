@@ -12,6 +12,9 @@ Created on Mon Jul 13 09:32:49 2020
 @author: Nathanael Judge
 """
 
+import xmltodict
+import os
+
 class FixDictionary:
     """
 
@@ -22,49 +25,25 @@ class FixDictionary:
     """
 
     version = "1.0"
-    def __init__(self, Type:str ):
-            self.Type = Type
+    def __init__(self):
+        # dictionary is intially empty, to be populated by read_xml
+        self.FIX = {}
 
-
-    def printType(self):
-        """ prints the type submitted
-
-        Returns
-        =======
-
-
-        """
-        print(self.Type)
-
-
-    def __checkString(self):
-        """ checks if the string is formated correctly.
+    def __checkType(self, name):
+        ''' This is a check to make sure the user is generating a legal dictionary
 
         Returns
         =======
-        Type: string
-               Formatted string to be used
-        """
-        if not self.Type[0:5] == "fixr:":
-            self.Type = "fixr:" + self.Type
-        return(self.Type)
-    def __checkType(self):
-        ''' This is a check to make sure the user is generating a legal dictionary and ensures the string is in a good format.
-
-        Returns
-        =======
-        formatted: String
-                   formatted user input to generate the dictionary
+        name: String
+                   accepted type
 
         '''
-        accepted  = ["fixr:codeSets", "fixr:datatypes", "fixr:fields", "fixr:components", "fixr:groups", "fixr:messages"]
-        formatted = self.__checkString()
-        if formatted not in accepted:
-            print("Formatting needs to be 'fixr:+'")
-            print("For example, FixDictionary('fixr:fields')")
-            raise Exception("type needs to be one of the 6 accepted")
+        accepted  = ["codeSets", "datatypes", "fields", "components", "groups", "messages"]
+        if name not in accepted:
+                    raise Exception("type not accepted")
 
-        return(formatted)
+        return(name)
+
     def getDocumentation(self, D):
         ''' Returns the documentation from a given element
 
@@ -74,10 +53,10 @@ class FixDictionary:
         '''
         # this adds
         temp = [ ]
-        if 'fixr:documentation' not in D['fixr:annotation'].keys():
+        if 'documentation' not in D['annotation'].keys():
             temp.append("No documentation found")
         else:
-            d = D['fixr:annotation']['fixr:documentation']
+            d = D['annotation']['documentation']
             if type(d) == list:
                 check = d[0]
                 if '#text' not in check.keys():
@@ -97,9 +76,9 @@ class FixDictionary:
         returns field references for a given element
         '''
         temp = [ ]
-        if 'fixr:fieldRef' not in Elem.keys( ):
+        if 'fieldRef' not in Elem.keys( ):
             return([])
-        E = Elem['fixr:fieldRef']
+        E = Elem['fieldRef']
         if type(E) != list:
             temp.append(E['@id'])
         else:
@@ -115,9 +94,9 @@ class FixDictionary:
         returns component references for a given element
         '''
         temp = [ ]
-        if 'fixr:componentRef' not in Elem.keys( ):
+        if 'componentRef' not in Elem.keys( ):
             return([])
-        E = Elem['fixr:componentRef']
+        E = Elem['componentRef']
         if type(E) != list:
             temp.append(E['@id'])
         else:
@@ -132,9 +111,9 @@ class FixDictionary:
         returns group references for a given element
         '''
         temp = [ ]
-        if 'fixr:groupRef' not in Elem.keys( ):
+        if 'groupRef' not in Elem.keys( ):
             return([])
-        E = Elem['fixr:groupRef']
+        E = Elem['groupRef']
         if type(E) != list:
             temp.append(E['@id'])
         else:
@@ -149,9 +128,9 @@ class FixDictionary:
         returns values in a code set
         '''
         temp = [ ]
-        if 'fixr:code' not in Elem.keys( ):
+        if 'code' not in Elem.keys( ):
             return([])
-        E = Elem['fixr:code']
+        E = Elem['code']
         if type(E) != list:
             temp.append(E['@id'])
         else:
@@ -160,7 +139,7 @@ class FixDictionary:
 
         return(temp)
 
-    def generateDictionary(self):
+    def generateDictionary(self, name):
         ''' Returns a dictionary of key = ID or name and appropriate values
 
         Returns
@@ -169,28 +148,18 @@ class FixDictionary:
                      a dictionary of the aforementioned information
 
         '''
-        name = self.__checkType( )
-        import xmltodict
-        import os
-
-
-        # get the XML content
-        FILENAME = os.path.join(os.path.dirname(__file__), "OrchestraEP257.xml")
-        f = open(FILENAME, "r", encoding="utf8")
-        # convert to dictionary
-        FIX = xmltodict.parse(f.read())
-        f.close()
-        FIX = FIX['fixr:repository']
+        name = self.__checkType(name)
+        FIX = self.FIX['repository']
         parser = FIX[name][name[0:len(name) - 1]]
         dictionary = {}
-        if name == 'fixr:fields':
+        if name == 'fields':
             for field in parser:
                 ID = field['@id']
                 name = field['@name']
                 type = field['@type']
                 documentation = self.getDocumentation(field)
                 dictionary[ID] = [name, type, documentation]
-        elif name == 'fixr:components':
+        elif name == 'components':
             for component in parser:
                 ID = component['@id']
                 name = component['@name']
@@ -199,36 +168,53 @@ class FixDictionary:
                 componentRef = self.getComponentRef(component)
                 documentation = self.getDocumentation(component)
                 dictionary[ID] = [name, fieldRef, groupRef, componentRef, documentation]
-        elif name == 'fixr:messages':
+        elif name == 'messages':
             for message in parser:
                 ID = message['@msgType']
                 name = message['@name']
-                fieldRef = self.getFieldRef(message['fixr:structure'])
-                groupRef = self.getGroupRef(message['fixr:structure'])
-                componentRef = self.getComponentRef(message['fixr:structure'])
+                fieldRef = self.getFieldRef(message['structure'])
+                groupRef = self.getGroupRef(message['structure'])
+                componentRef = self.getComponentRef(message['structure'])
                 documentation = self.getDocumentation(message)
                 dictionary[ID] = [name, fieldRef, groupRef, componentRef, documentation]
-        elif name == 'fixr:codeSets':
+        elif name == 'codeSets':
             for codeSet in parser:
                 ID = codeSet['@id']
                 name = codeSet['@name']
                 fieldRef = self.getCodeSet(codeSet)
                 documentation = self.getDocumentation(codeSet)
                 dictionary[ID] = [name, fieldRef, documentation]
-        elif name == 'fixr:groups':
+        elif name == 'groups':
             for group in parser:
                 ID = group['@id']
                 name = group['@name']
-                numInGroup = group['fixr:numInGroup']['@id']
+                numInGroup = group['numInGroup']['@id']
                 fieldRef = self.getFieldRef(group)
                 groupRef = self.getGroupRef(group)
                 componentRef = self.getComponentRef(group)
                 documentation = self.getDocumentation(group)
                 dictionary[ID] = [name, numInGroup, fieldRef, groupRef, componentRef, documentation]
-        elif name == 'fixr:datatypes':
+        elif name == 'datatypes':
             for datatype in parser:
                 name = datatype['@name']
                 documentation = self.getDocumentation(datatype)
                 dictionary[name] = [name, documentation]
 
         return(dictionary)
+
+    def read_xml(self, filepath="OrchestraFIXLatest.xml"):
+        """
+        Read the contents of an Orchestra XML file and convert it to a dictionary
+        """
+        namespaces = {
+            "http://fixprotocol.io/2020/orchestra/repository": None, # skip this namespace so only localName is used
+        }
+        # present full namespace of metadata - Dublin Core Terms
+
+        try:
+            with open(filepath, "r", encoding="utf8") as f:
+                self.FIX = xmltodict.parse(f.read(), process_namespaces=True, namespaces=namespaces)
+        except IOError as e:
+            print("I/O error({0}): {1}".format(e.errno, e.strerror))
+        except Exception: #handle other exceptions such as attribute errors
+            print("Unexpected error:", os.system.exc_info()[0])

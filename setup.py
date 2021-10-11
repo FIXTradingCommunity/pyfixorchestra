@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyfixorchestra", # Replace with your own username
-    version="1.0.0",
+    version="1.1.0",
     author="Nathanael Judge",
     author_email="nzjudge@mtu.edu",
     description="FIX pyorchestra",
@@ -13,7 +13,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/FIXTradingCommunity/pyfixorchestra",
     packages=setuptools.find_packages(),
-	package_data={'':['OrchestraEP257.xml']},
 	include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
