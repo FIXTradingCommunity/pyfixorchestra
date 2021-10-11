@@ -80,10 +80,10 @@ class FixDictionary:
             return([])
         E = Elem['fieldRef']
         if type(E) != list:
-            temp.append(E['@id'])
+            temp.append({k: v for k, v in E.items() if k in['@id', '@presence', '@scenario'] })
         else:
             for e in E:
-                temp.append(e['@id'])
+                temp.append({k: v for k, v in e.items() if k in['@id', '@presence', '@scenario'] })
         return(temp)
 
     def getComponentRef(self, Elem):
@@ -98,10 +98,10 @@ class FixDictionary:
             return([])
         E = Elem['componentRef']
         if type(E) != list:
-            temp.append(E['@id'])
+            temp.append({k: v for k, v in E.items() if k in['@id', '@presence', '@scenario'] })
         else:
             for e in E:
-                temp.append(e['@id'])
+                temp.append({k: v for k, v in e.items() if k in['@id', '@presence', '@scenario'] })
         return(temp)
     def getGroupRef(self, Elem):
         ''' Returns the group tags for group references in other components
@@ -115,10 +115,10 @@ class FixDictionary:
             return([])
         E = Elem['groupRef']
         if type(E) != list:
-            temp.append(E['@id'])
+            temp.append({k: v for k, v in E.items() if k in['@id', '@presence', '@scenario'] })
         else:
             for e in E:
-                temp.append(e['@id'])
+                temp.append({k: v for k, v in e.items() if k in['@id', '@presence', '@scenario'] })
         return(temp)
     def getCodeSet(self, Elem):
         ''' Returns the values in a codeSet
