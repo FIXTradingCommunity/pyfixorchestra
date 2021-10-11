@@ -38,7 +38,7 @@ class FixDictionary:
                    accepted type
 
         '''
-        accepted  = ["codeSets", "datatypes", "fields", "components", "groups", "messages"]
+        accepted  = ["codeSets", "datatypes", "fields", "components", "groups", "messages", "metadata"]
         if name not in accepted:
                     raise Exception("type not accepted")
 
@@ -149,56 +149,60 @@ class FixDictionary:
 
         '''
         name = self.__checkType(name)
-        FIX = self.FIX['repository']
-        parser = FIX[name][name[0:len(name) - 1]]
         dictionary = {}
-        if name == 'fields':
-            for field in parser:
-                ID = field['@id']
-                name = field['@name']
-                type = field['@type']
-                documentation = self.getDocumentation(field)
-                dictionary[ID] = [name, type, documentation]
-        elif name == 'components':
-            for component in parser:
-                ID = component['@id']
-                name = component['@name']
-                fieldRef = self.getFieldRef(component)
-                groupRef = self.getGroupRef(component)
-                componentRef = self.getComponentRef(component)
-                documentation = self.getDocumentation(component)
-                dictionary[ID] = [name, fieldRef, groupRef, componentRef, documentation]
-        elif name == 'messages':
-            for message in parser:
-                ID = message['@msgType']
-                name = message['@name']
-                fieldRef = self.getFieldRef(message['structure'])
-                groupRef = self.getGroupRef(message['structure'])
-                componentRef = self.getComponentRef(message['structure'])
-                documentation = self.getDocumentation(message)
-                dictionary[ID] = [name, fieldRef, groupRef, componentRef, documentation]
-        elif name == 'codeSets':
-            for codeSet in parser:
-                ID = codeSet['@id']
-                name = codeSet['@name']
-                fieldRef = self.getCodeSet(codeSet)
-                documentation = self.getDocumentation(codeSet)
-                dictionary[ID] = [name, fieldRef, documentation]
-        elif name == 'groups':
-            for group in parser:
-                ID = group['@id']
-                name = group['@name']
-                numInGroup = group['numInGroup']['@id']
-                fieldRef = self.getFieldRef(group)
-                groupRef = self.getGroupRef(group)
-                componentRef = self.getComponentRef(group)
-                documentation = self.getDocumentation(group)
-                dictionary[ID] = [name, numInGroup, fieldRef, groupRef, componentRef, documentation]
-        elif name == 'datatypes':
-            for datatype in parser:
-                name = datatype['@name']
-                documentation = self.getDocumentation(datatype)
-                dictionary[name] = [name, documentation]
+        FIX = self.FIX['repository']
+        if name == 'metadata':
+            dictionary = FIX['metadata']
+        else:
+            parser = FIX[name][name[0:len(name) - 1]]
+        
+            if name == 'fields':
+                for field in parser:
+                    ID = field['@id']
+                    name = field['@name']
+                    type = field['@type']
+                    documentation = self.getDocumentation(field)
+                    dictionary[ID] = [name, type, documentation]
+            elif name == 'components':
+                for component in parser:
+                    ID = component['@id']
+                    name = component['@name']
+                    fieldRef = self.getFieldRef(component)
+                    groupRef = self.getGroupRef(component)
+                    componentRef = self.getComponentRef(component)
+                    documentation = self.getDocumentation(component)
+                    dictionary[ID] = [name, fieldRef, groupRef, componentRef, documentation]
+            elif name == 'messages':
+                for message in parser:
+                    ID = message['@msgType']
+                    name = message['@name']
+                    fieldRef = self.getFieldRef(message['structure'])
+                    groupRef = self.getGroupRef(message['structure'])
+                    componentRef = self.getComponentRef(message['structure'])
+                    documentation = self.getDocumentation(message)
+                    dictionary[ID] = [name, fieldRef, groupRef, componentRef, documentation]
+            elif name == 'codeSets':
+                for codeSet in parser:
+                    ID = codeSet['@id']
+                    name = codeSet['@name']
+                    fieldRef = self.getCodeSet(codeSet)
+                    documentation = self.getDocumentation(codeSet)
+                    dictionary[ID] = [name, fieldRef, documentation]
+            elif name == 'groups':
+                for group in parser:
+                    ID = group['@id']
+                    name = group['@name']
+                    numInGroup = group['numInGroup']['@id']
+                    fieldRef = self.getFieldRef(group)
+                    groupRef = self.getGroupRef(group)
+                    componentRef = self.getComponentRef(group)
+                    documentation = self.getDocumentation(group)
+                    dictionary[ID] = [name, numInGroup, fieldRef, groupRef, componentRef, documentation]
+            elif name == 'datatypes':
+                for datatype in parser:
+                    name = datatype['@name']
+                    documentation = self.getDocumentation(datatype)
+                    dictionary[name] = [name, documentation]
 
         return(dictionary)
 
