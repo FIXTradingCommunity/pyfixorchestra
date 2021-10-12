@@ -182,79 +182,87 @@ class FixDictionary:
         return(temp)
 
     def generateDictionary(self, name):
-        ''' Returns a dictionary of key = id or name and appropriate values
+        ''' Extracts the requested category of Orchestra elements
 
         Returns
         =======
-        dictionary:  dict
-                     a dictionary of the aforementioned information
+        an array of dictionary elements or a dictionary of metadata
 
         '''
         name = self.__checkType(name)
-        dictionary = {}
         FIX = self.FIX['repository']
         if name == 'metadata':
-            dictionary = FIX['metadata']
+            # return a dictionary of Dublin Core Terms
+            return FIX['metadata']
         else:
             parser = FIX[name][name[0:len(name) - 1]]
+            array = []
 
             if name == 'fields':
                 for field in parser:
-                    id = field['@id']
-                    name = field['@name']
-                    type = field['@type']
-                    scenario = field.get('@scenario', 'base')
-                    documentation = self.getDocumentation(field)
-                    dictionary[id] = [name, type, scenario, documentation]
+                    dictionary = {}
+                    dictionary['id'] = field['@id']
+                    dictionary['name'] = field['@name']
+                    dictionary['type'] = field['@type']
+                    dictionary['scenario'] = field.get('@scenario', 'base')
+                    dictionary['documentation'] = self.getDocumentation(field)
+                    array.append(dictionary)
             elif name == 'components':
                 for component in parser:
-                    id = component['@id']
-                    name = component['@name']
-                    scenario = component.get('@scenario', 'base')
-                    fieldRef = self.getFieldRef(component)
-                    groupRef = self.getGroupRef(component)
-                    componentRef = self.getComponentRef(component)
-                    documentation = self.getDocumentation(component)
-                    dictionary[id] = [name, scenario, fieldRef,
-                                      groupRef, componentRef, documentation]
+                    dictionary = {}
+                    dictionary['id'] = component['@id']
+                    dictionary['name'] = component['@name']
+                    dictionary['scenario'] = component.get('@scenario', 'base')
+                    dictionary['fieldRef'] = self.getFieldRef(component)
+                    dictionary['groupRef'] = self.getGroupRef(component)
+                    dictionary['componentRef'] = self.getComponentRef(
+                        component)
+                    dictionary['documentation'] = self.getDocumentation(
+                        component)
+                    array.append(dictionary)
             elif name == 'messages':
                 for message in parser:
-                    id = message['@msgType']
-                    name = message['@name']
-                    scenario = message.get('@scenario', 'base')
-                    fieldRef = self.getFieldRef(message['structure'])
-                    groupRef = self.getGroupRef(message['structure'])
-                    componentRef = self.getComponentRef(message['structure'])
-                    documentation = self.getDocumentation(message)
-                    dictionary[id] = [name, scenario, fieldRef,
-                                      groupRef, componentRef, documentation]
+                    dictionary = {}
+                    dictionary['id'] = message['@id']
+                    dictionary['name'] = message['@name']
+                    dictionary['scenario'] = message.get('@scenario', 'base')
+                    dictionary['fieldRef'] = self.getFieldRef(message['structure'])
+                    dictionary['groupRef'] = self.getGroupRef(message['structure'])
+                    dictionary['componentRef'] = self.getComponentRef(message['structure'])
+                    dictionary['documentation'] = self.getDocumentation(
+                        message)
+                    array.append(dictionary)
             elif name == 'codeSets':
                 for codeSet in parser:
-                    id = codeSet['@id']
-                    name = codeSet['@name']
-                    scenario = codeSet.get('@scenario', 'base')
-                    codes = self.getCodes(codeSet)
-                    documentation = self.getDocumentation(codeSet)
-                    dictionary[id] = [name, scenario, codes, documentation]
+                    dictionary = {}
+                    dictionary['id'] = codeSet['@id']
+                    dictionary['name'] = codeSet['@name']
+                    dictionary['scenario'] = codeSet.get('@scenario', 'base')
+                    dictionary['codes'] = self.getCodes(codeSet)
+                    dictionary['documentation'] = self.getDocumentation(
+                        codeSet)
+                    array.append(dictionary)
             elif name == 'groups':
                 for group in parser:
-                    id = group['@id']
-                    name = group['@name']
-                    scenario = group.get('@scenario', 'base')
-                    numInGroup = group['numInGroup']['@id']
-                    fieldRef = self.getFieldRef(group)
-                    groupRef = self.getGroupRef(group)
-                    componentRef = self.getComponentRef(group)
-                    documentation = self.getDocumentation(group)
-                    dictionary[id] = [name, scenario, numInGroup, fieldRef,
-                                      groupRef, componentRef, documentation]
+                    dictionary = {}
+                    dictionary['id'] = group['@id']
+                    dictionary['name'] = group['@name']
+                    dictionary['scenario'] = group.get('@scenario', 'base')
+                    dictionary['numInGroup'] = group['numInGroup']['@id']
+                    dictionary['fieldRef'] = self.getFieldRef(group)
+                    dictionary['groupRef'] = self.getGroupRef(group)
+                    dictionary['componentRef'] = self.getComponentRef(group)
+                    dictionary['documentation'] = self.getDocumentation(group)
+                    array.append(dictionary)
             elif name == 'datatypes':
                 for datatype in parser:
-                    name = datatype['@name']
-                    documentation = self.getDocumentation(datatype)
-                    dictionary[name] = [name, documentation]
+                    dictionary = {}
+                    dictionary['name'] = datatype['@name']
+                    dictionary['documentation'] = self.getDocumentation(
+                        datatype)
+                    array.append(dictionary)
 
-        return(dictionary)
+            return(array)
 
     def read_xml(self, filepath="OrchestraFIXLatest.xml"):
         """
