@@ -57,15 +57,19 @@ class FixDictionary:
         '''
         # this adds
         temp = []
-        if 'documentation' not in Elem['annotation'].keys():
+        if 'annotation' not in Elem or 'documentation' not in Elem['annotation'].keys():
             temp.append("No documentation found")
         else:
             D = Elem['annotation']['documentation']
-            if type(D) == list:
+            if D is None:
+                temp.append("No documentation found")
+            elif type(D) == list:
                 for d in D:
                     if '#text' in d.keys():
                         temp.append({k[1:]: v for k, v in d.items()
                                      if k in ['#text', '@purpose', '@contentType']})
+            elif type(D) == str:
+                temp.append({'text', D})
             elif '#text' in D.keys():
                 temp.append({k[1:]: v for k, v in D.items()
                              if k in ['#text', '@purpose', '@contentType']})
@@ -85,12 +89,18 @@ class FixDictionary:
             return([])
         E = Elem['fieldRef']
         if type(E) != list:
-            temp.append({k[1:]: v for k, v in E.items() if k in [
-                        '@id', '@presence', '@scenario']})
+            documentation = self.getDocumentation(E)
+            kv = {k[1:]: v for k, v in E.items() if k in [
+                '@id', '@presence', '@scenario']}
+            kv['documentation'] = documentation
+            temp.append(kv)
         else:
             for e in E:
-                temp.append({k[1:]: v for k, v in e.items() if k in [
-                            '@id', '@presence', '@scenario']})
+                documentation = self.getDocumentation(e)
+                kv = {k[1:]: v for k, v in e.items() if k in [
+                    '@id', '@presence', '@scenario']}
+                kv['documentation'] = documentation
+                temp.append(kv)
         return(temp)
 
     def getComponentRef(self, Elem):
@@ -105,12 +115,18 @@ class FixDictionary:
             return([])
         E = Elem['componentRef']
         if type(E) != list:
-            temp.append({k[1:]: v for k, v in E.items() if k in [
-                        '@id', '@presence', '@scenario']})
+            documentation = self.getDocumentation(E)
+            kv = {k[1:]: v for k, v in E.items() if k in [
+                '@id', '@presence', '@scenario']}
+            kv['documentation'] = documentation
+            temp.append(kv)
         else:
             for e in E:
-                temp.append({k[1:]: v for k, v in e.items() if k in [
-                            '@id', '@presence', '@scenario']})
+                documentation = self.getDocumentation(e)
+                kv = {k[1:]: v for k, v in e.items() if k in [
+                    '@id', '@presence', '@scenario']}
+                kv['documentation'] = documentation
+                temp.append(kv)
         return(temp)
 
     def getGroupRef(self, Elem):
@@ -125,15 +141,21 @@ class FixDictionary:
             return([])
         E = Elem['groupRef']
         if type(E) != list:
-            temp.append({k[1:]: v for k, v in E.items() if k in [
-                        '@id', '@presence', '@scenario']})
+            documentation = self.getDocumentation(E)
+            kv = {k[1:]: v for k, v in E.items() if k in [
+                '@id', '@presence', '@scenario']}
+            kv['documentation'] = documentation
+            temp.append(kv)
         else:
             for e in E:
-                temp.append({k[1:]: v for k, v in e.items() if k in [
-                            '@id', '@presence', '@scenario']})
+                documentation = self.getDocumentation(e)
+                kv = {k[1:]: v for k, v in e.items() if k in [
+                    '@id', '@presence', '@scenario']}
+                kv['documentation'] = documentation
+                temp.append(kv)
         return(temp)
 
-    def getCodeSet(self, Elem):
+    def getCodes(self, Elem):
         ''' Returns the values in a codeSet
 
         Returns
@@ -145,11 +167,18 @@ class FixDictionary:
             return([])
         E = Elem['code']
         if type(E) != list:
-            temp.append(E['@id'])
+            documentation = self.getDocumentation(E)
+            kv = {k[1:]: v for k, v in E.items() if k in [
+                '@id', '@name', '@value']}
+            kv['documentation'] = documentation
+            temp.append(kv)
         else:
             for e in E:
-                temp.append(e['@id'])
-
+                documentation = self.getDocumentation(e)
+                kv = {k[1:]: v for k, v in e.items() if k in [
+                    '@id', '@name', '@value']}
+                kv['documentation'] = documentation
+                temp.append(kv)
         return(temp)
 
     def generateDictionary(self, name):
@@ -204,9 +233,9 @@ class FixDictionary:
                     id = codeSet['@id']
                     name = codeSet['@name']
                     scenario = codeSet.get('@scenario', 'base')
-                    fieldRef = self.getCodeSet(codeSet)
+                    codes = self.getCodes(codeSet)
                     documentation = self.getDocumentation(codeSet)
-                    dictionary[id] = [name, scenario, fieldRef, documentation]
+                    dictionary[id] = [name, scenario, codes, documentation]
             elif name == 'groups':
                 for group in parser:
                     id = group['@id']
