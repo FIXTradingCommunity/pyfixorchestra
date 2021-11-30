@@ -12,4 +12,4 @@ typez = [METADATA, FIELDS, COMPONENTS, GROUPS, MESSAGES, CODESETS, DATATYPES]
 
 fd = FixDictionary()
 fd.read_xml("test/resource_dir/OrchestraFIXLatest.xml")
-dd = {t:print(fd.generateDictionary(t)) for t in typez}
+dd = {t:print(fd.generate_dictionary(t)) for t in typez}

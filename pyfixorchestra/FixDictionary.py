@@ -12,11 +12,10 @@ Created on Mon Jul 13 09:32:49 2020
 @author: Nathanael Judge
 """
 
-
-
-
-import xmltodict
 import os
+import xmltodict
+
+
 class FixDictionary:
     """
 
@@ -32,238 +31,219 @@ class FixDictionary:
         # dictionary is intially empty, to be populated by read_xml
         self.FIX = {}
 
-    def __checkType(self, name):
-        ''' This is a check to make sure the user is generating a legal dictionary
+    def __check_type(self, name):
+        """ This is a check to make sure the user is generating a legal dictionary
 
         Returns
         =======
         name: String
                    accepted type
 
-        '''
+        """
         accepted = ["codeSets", "datatypes", "fields",
                     "components", "groups", "messages", "metadata"]
         if name not in accepted:
             raise Exception("type not accepted")
 
-        return(name)
+        return name
 
-    def getDocumentation(self, Elem):
-        ''' Returns the documentation from a given element
+    def documentation(self, elem):
+        """ Returns the documentation from a given element
 
         Returns
         =======
         returns documentation from a given element
-        '''
+        """
         # this adds
         temp = []
-        if 'annotation' not in Elem or 'documentation' not in Elem['annotation'].keys():
+        if 'annotation' not in elem or 'documentation' not in elem['annotation'].keys():
             temp.append({"text": ""})
         else:
-            D = Elem['annotation']['documentation']
-            if D is None:
+            d = elem['annotation']['documentation']
+            if d is None:
                 temp.append({"text": ""})
-            elif type(D) == list:
-                for d in D:
+            elif type(d) == list:
+                for d in d:
                     if '#text' in d.keys():
                         temp.append({k[1:]: v for k, v in d.items()
                                      if k in ['#text', '@purpose', '@contentType']})
-            elif type(D) == str:
-                temp.append({'text', D})
-            elif '#text' in D.keys():
-                temp.append({k[1:]: v for k, v in D.items()
+            elif type(d) == str:
+                temp.append({'text', d})
+            elif '#text' in d.keys():
+                temp.append({k[1:]: v for k, v in d.items()
                              if k in ['#text', '@purpose', '@contentType']})
             else:
                 temp.append({"text": ""})
-        return(temp)
+        return temp
 
-    def getFieldRef(self, Elem):
-        ''' Returns the field tags for field references in other components
+    def field_ref(self, elem):
+        """ Returns the field tags for field references in other components
 
         Returns
         =======
         returns field references for a given element
-        '''
+        """
         temp = []
-        if 'fieldRef' not in Elem.keys():
-            return([])
-        E = Elem['fieldRef']
-        if type(E) != list:
-            documentation = self.getDocumentation(E)
-            kv = {k[1:]: v for k, v in E.items() if k in [
+        if 'fieldRef' not in elem.keys():
+            return []
+        e = elem['fieldRef']
+        if type(e) != list:
+            documentation = self.documentation(e)
+            kv = {k[1:]: v for k, v in e.items() if k in [
                 '@id', '@presence', '@scenario']}
             kv['documentation'] = documentation
             temp.append(kv)
         else:
-            for e in E:
-                documentation = self.getDocumentation(e)
+            for e in e:
+                documentation = self.documentation(e)
                 kv = {k[1:]: v for k, v in e.items() if k in [
                     '@id', '@presence', '@scenario']}
                 kv['documentation'] = documentation
                 temp.append(kv)
-        return(temp)
+        return temp
 
-    def getComponentRef(self, Elem):
-        ''' Returns the component tags for component references in other components
+    def component_ref(self, elem):
+        """ Returns the component tags for component references in other components
 
         Returns
         =======
         returns component references for a given element
-        '''
+        """
         temp = []
-        if 'componentRef' not in Elem.keys():
-            return([])
-        E = Elem['componentRef']
-        if type(E) != list:
-            documentation = self.getDocumentation(E)
-            kv = {k[1:]: v for k, v in E.items() if k in [
+        if 'componentRef' not in elem.keys():
+            return []
+        e = elem['componentRef']
+        if type(e) != list:
+            documentation = self.documentation(e)
+            kv = {k[1:]: v for k, v in e.items() if k in [
                 '@id', '@presence', '@scenario']}
             kv['documentation'] = documentation
             temp.append(kv)
         else:
-            for e in E:
-                documentation = self.getDocumentation(e)
+            for e in e:
+                documentation = self.documentation(e)
                 kv = {k[1:]: v for k, v in e.items() if k in [
                     '@id', '@presence', '@scenario']}
                 kv['documentation'] = documentation
                 temp.append(kv)
-        return(temp)
+        return temp
 
-    def getGroupRef(self, Elem):
-        ''' Returns the group tags for group references in other components
+    def group_ref(self, elem):
+        """ Returns the group tags for group references in other components
 
         Returns
         =======
         returns group references for a given element
-        '''
+        """
         temp = []
-        if 'groupRef' not in Elem.keys():
-            return([])
-        E = Elem['groupRef']
-        if type(E) != list:
-            documentation = self.getDocumentation(E)
-            kv = {k[1:]: v for k, v in E.items() if k in [
+        if 'groupRef' not in elem.keys():
+            return []
+        e = elem['groupRef']
+        if type(e) != list:
+            documentation = self.documentation(e)
+            kv = {k[1:]: v for k, v in e.items() if k in [
                 '@id', '@presence', '@scenario']}
             kv['documentation'] = documentation
             temp.append(kv)
         else:
-            for e in E:
-                documentation = self.getDocumentation(e)
+            for e in e:
+                documentation = self.documentation(e)
                 kv = {k[1:]: v for k, v in e.items() if k in [
                     '@id', '@presence', '@scenario']}
                 kv['documentation'] = documentation
                 temp.append(kv)
-        return(temp)
+        return temp
 
-    def getCodes(self, Elem):
-        ''' Returns the values in a codeSet
+    def codes(self, elem):
+        """ Returns the values in a codeSet
 
         Returns
         =======
         returns values in a code set
-        '''
+        """
         temp = []
-        if 'code' not in Elem.keys():
-            return([])
-        E = Elem['code']
-        if type(E) != list:
-            documentation = self.getDocumentation(E)
-            kv = {k[1:]: v for k, v in E.items() if k in [
+        if 'code' not in elem.keys():
+            return []
+        e = elem['code']
+        if type(e) != list:
+            documentation = self.documentation(e)
+            kv = {k[1:]: v for k, v in e.items() if k in [
                 '@id', '@name', '@value']}
             kv['documentation'] = documentation
             temp.append(kv)
         else:
-            for e in E:
-                documentation = self.getDocumentation(e)
+            for e in e:
+                documentation = self.documentation(e)
                 kv = {k[1:]: v for k, v in e.items() if k in [
                     '@id', '@name', '@value']}
                 kv['documentation'] = documentation
                 temp.append(kv)
-        return(temp)
+        return temp
 
-    def generateDictionary(self, name):
-        ''' Extracts the requested category of Orchestra elements
+    def generate_dictionary(self, name):
+        """ Extracts the requested category of Orchestra elements
 
         Returns
         =======
         an array of dictionary elements or a dictionary of metadata
 
-        '''
-        name = self.__checkType(name)
-        FIX = self.FIX['repository']
+        """
+        name = self.__check_type(name)
+        fix = self.FIX['repository']
         if name == 'metadata':
             # return a dictionary of Dublin Core Terms
-            return FIX['metadata']
+            return fix['metadata']
         else:
-            parser = FIX[name][name[0:len(name) - 1]]
+            parser = fix[name][name[0:len(name) - 1]]
             array = []
 
             if name == 'fields':
                 for field in parser:
-                    dictionary = {}
-                    dictionary['id'] = field['@id']
-                    dictionary['name'] = field['@name']
-                    dictionary['type'] = field['@type']
-                    dictionary['scenario'] = field.get('@scenario', 'base')
-                    dictionary['documentation'] = self.getDocumentation(field)
+                    dictionary = {'id': field['@id'], 'name': field['@name'], 'type': field['@type'],
+                                  'scenario': field.get('@scenario', 'base'),
+                                  'documentation': self.documentation(field)}
                     array.append(dictionary)
             elif name == 'components':
                 for component in parser:
-                    dictionary = {}
-                    dictionary['id'] = component['@id']
-                    dictionary['name'] = component['@name']
-                    dictionary['scenario'] = component.get('@scenario', 'base')
-                    dictionary['fieldRef'] = self.getFieldRef(component)
-                    dictionary['groupRef'] = self.getGroupRef(component)
-                    dictionary['componentRef'] = self.getComponentRef(
-                        component)
-                    dictionary['documentation'] = self.getDocumentation(
-                        component)
+                    dictionary = {'id': component['@id'], 'name': component['@name'],
+                                  'scenario': component.get('@scenario', 'base'),
+                                  'fieldRef': self.field_ref(component), 'groupRef': self.group_ref(component),
+                                  'componentRef': self.component_ref(
+                                      component), 'documentation': self.documentation(
+                            component)}
                     array.append(dictionary)
             elif name == 'messages':
                 for message in parser:
-                    dictionary = {}
-                    dictionary['id'] = message['@id']
-                    dictionary['name'] = message['@name']
-                    dictionary['scenario'] = message.get('@scenario', 'base')
-                    dictionary['fieldRef'] = self.getFieldRef(message['structure'])
-                    dictionary['groupRef'] = self.getGroupRef(message['structure'])
-                    dictionary['componentRef'] = self.getComponentRef(message['structure'])
-                    dictionary['documentation'] = self.getDocumentation(
-                        message)
+                    dictionary = {'id': message['@id'], 'name': message['@name'],
+                                  'scenario': message.get('@scenario', 'base'),
+                                  'fieldRef': self.field_ref(message['structure']),
+                                  'groupRef': self.group_ref(message['structure']),
+                                  'componentRef': self.component_ref(message['structure']),
+                                  'documentation': self.documentation(
+                                      message)}
                     array.append(dictionary)
             elif name == 'codeSets':
                 for codeSet in parser:
-                    dictionary = {}
-                    dictionary['id'] = codeSet['@id']
-                    dictionary['name'] = codeSet['@name']
-                    dictionary['type'] = codeSet['@type']
-                    dictionary['scenario'] = codeSet.get('@scenario', 'base')
-                    dictionary['codes'] = self.getCodes(codeSet)
-                    dictionary['documentation'] = self.getDocumentation(
-                        codeSet)
+                    dictionary = {'id': codeSet['@id'], 'name': codeSet['@name'], 'type': codeSet['@type'],
+                                  'scenario': codeSet.get('@scenario', 'base'), 'codes': self.codes(codeSet),
+                                  'documentation': self.documentation(
+                                      codeSet)}
                     array.append(dictionary)
             elif name == 'groups':
                 for group in parser:
-                    dictionary = {}
-                    dictionary['id'] = group['@id']
-                    dictionary['name'] = group['@name']
-                    dictionary['scenario'] = group.get('@scenario', 'base')
-                    dictionary['numInGroup'] = group['numInGroup']['@id']
-                    dictionary['fieldRef'] = self.getFieldRef(group)
-                    dictionary['groupRef'] = self.getGroupRef(group)
-                    dictionary['componentRef'] = self.getComponentRef(group)
-                    dictionary['documentation'] = self.getDocumentation(group)
+                    dictionary = {'id': group['@id'], 'name': group['@name'],
+                                  'scenario': group.get('@scenario', 'base'), 'numInGroup': group['numInGroup']['@id'],
+                                  'fieldRef': self.field_ref(group), 'groupRef': self.group_ref(group),
+                                  'componentRef': self.component_ref(group),
+                                  'documentation': self.documentation(group)}
                     array.append(dictionary)
             elif name == 'datatypes':
                 for datatype in parser:
-                    dictionary = {}
-                    dictionary['name'] = datatype['@name']
-                    dictionary['documentation'] = self.getDocumentation(
-                        datatype)
+                    dictionary = {'name': datatype['@name'], 'documentation': self.documentation(
+                        datatype)}
                     array.append(dictionary)
 
-            return(array)
+            return array
 
     def read_xml(self, filepath="OrchestraFIXLatest.xml"):
         """

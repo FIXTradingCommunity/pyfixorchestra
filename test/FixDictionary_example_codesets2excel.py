@@ -79,9 +79,9 @@ def writeCodesets(ws,codesets):
 
 fd = FixDictionary()
 fd.read_xml("resource_dir/OrchestraFIXLatest.xml")
-codesets=fd.generateDictionary("codeSets")
-datatypes=fd.generateDictionary("datatypes")
-fields=fd.generateDictionary("fields")
+codesets=fd.generate_dictionary("codeSets")
+datatypes=fd.generate_dictionary("datatypes")
+fields=fd.generate_dictionary("fields")
 wb=openpyxl.Workbook()
 ws=wb.active
 ws.title="Codesets"

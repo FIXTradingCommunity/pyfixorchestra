@@ -22,5 +22,5 @@ class GeneratorPrettyPrinter:
         master_list = [ ]
         for t in T:
             temp = FixDictionary(t)
-            master_list.append(temp.generateDictionary( ))
+            master_list.append(temp.generate_dictionary())
         return(master_list)
