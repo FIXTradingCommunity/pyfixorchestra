@@ -58,11 +58,11 @@ class FixDictionary:
         # this adds
         temp = []
         if 'annotation' not in Elem or 'documentation' not in Elem['annotation'].keys():
-            temp.append("No documentation found")
+            temp.append({"text": ""})
         else:
             D = Elem['annotation']['documentation']
             if D is None:
-                temp.append("No documentation found")
+                temp.append({"text": ""})
             elif type(D) == list:
                 for d in D:
                     if '#text' in d.keys():
@@ -74,7 +74,7 @@ class FixDictionary:
                 temp.append({k[1:]: v for k, v in D.items()
                              if k in ['#text', '@purpose', '@contentType']})
             else:
-                temp.append("No documentation found")
+                temp.append({"text": ""})
         return(temp)
 
     def getFieldRef(self, Elem):
@@ -237,6 +237,7 @@ class FixDictionary:
                     dictionary = {}
                     dictionary['id'] = codeSet['@id']
                     dictionary['name'] = codeSet['@name']
+                    dictionary['type'] = codeSet['@type']
                     dictionary['scenario'] = codeSet.get('@scenario', 'base')
                     dictionary['codes'] = self.getCodes(codeSet)
                     dictionary['documentation'] = self.getDocumentation(
