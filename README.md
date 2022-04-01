@@ -86,7 +86,7 @@ Codesets are return as an array where each element reprsents a codeset. Each cod
 
 ### Datatypes
 
-Datatypes are return as an array where each element reprsents a datatype. Each datatype is a dictionary with entries for name and documentation.
+Datatypes are return as an array where each element represents a datatype. Each datatype is a dictionary with entries for name and documentation.
 
 ```python
 [{'name': 'int', 'documentation': [{'purpose': 'SYNOPSIS', 'text': 'Sequence of digits without commas or decimals and optional sign character (ASCII characters "-" and "0" - "9" ). The sign character utilizes one byte (i.e. positive int is "99999" while negative int is "-99999"). Note that int values may contain leading zeros (e.g. "00023" = "23").'}, {'purpose': 'EXAMPLE', 'text': '723 in field 21 would be mapped int as |21=723|. -723 in field 12 would be mapped int as |12=-723|.'}]}, {'name': 'Length', 'documentation': [{'purpose': 'SYNOPSIS', 'text': 'int field representing the length in bytes. Value must be positive.'}]},
